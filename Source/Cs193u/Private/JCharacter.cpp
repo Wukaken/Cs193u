@@ -46,6 +46,7 @@ void AJCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AJCharacter::PrimaryAttack);
 }
 
 void AJCharacter::MoveForward(float Value)
@@ -63,4 +64,19 @@ void AJCharacter::MoveRight(float Value)
 	ControlRot.Roll = 0.0f;
 	FVector RightVector = FRotationMatrix(ControlRot).GetScaledAxis(EAxis::Y);
 	AddMovementInput(RightVector, Value);
+}
+
+void AJCharacter::PrimaryAttack()
+{
+	if(ensure(ProjectileClass)){
+		FVector MuzzleLocation = GetMesh()->GetSocketLocation(HandSocketName);
+		FRotator MuzzleRotation = GetControlRotation();
+
+		FActorSpawnParameters ActorSpawnParams;
+		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+
+		GetWorld()->SpawnActor<JProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
+	}
+
+	
 }
