@@ -19,7 +19,7 @@ public:
 
 	UPROPERTY()
 	AActor* Instigator;
-}
+};
 
 
 /**

@@ -3,6 +3,7 @@
 
 #include "SAction.h"
 #include "SActionComponent.h"
+#include "../Cs193u.h"
 #include "Net/UnrealNetwork.h"
 
 void USAction::Initialize(USActionComponent* NewActionComp)
@@ -41,7 +42,7 @@ void USAction::StartAction_Implementation(AActor* Instigator)
     RepData.Instigator = Instigator;
 
     if(GetOwningComponent()->GetOwnerRole() == ROLE_Authority)
-        TimeStarted = GetWorld()->TimeSeconds();
+        TimeStarted = GetWorld()->TimeSeconds;
 
     // broadcasting here comes a new action component and start move time
     GetOwningComponent()->OnActionStarted.Broadcast(GetOwningComponent(), this);
@@ -69,7 +70,7 @@ UWorld* USAction::GetWorld() const
     return nullptr;
 }
 
-bool IsSupportedForNetworking() const
+bool USAction::IsSupportedForNetworking() const
 {
     return true;
 }

@@ -2,6 +2,9 @@
 
 
 #include "SCharacter.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
+#include "SActionComponent.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -9,6 +12,14 @@ ASCharacter::ASCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
+	SpringArmComp->bUsePawnControlRotation = true;
+	SpringArmComp->SetupAttachment(RootComponent);
+
+	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
+	CameraComp->SetupAttachment(SpringArmComp);
+
+	ActionComp = CreateDefaultSubobject<USActionComponent>("ActionComp");
 }
 
 // Called when the game starts or when spawned
@@ -60,5 +71,7 @@ void ASCharacter::MoveRight(float Value)
 
 void ASCharacter::PrimaryAttack()
 {
-	
+	UE_LOG(LogTemp, Warning, TEXT("I am doing attack"));
+	ActionComp->StartActionByName(this, "PrimaryAttack");
+	UE_LOG(LogTemp, Warning, TEXT("Finish attack"));
 }

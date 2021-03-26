@@ -8,6 +8,7 @@
 #include "SActionComponent.generated.h"
 
 class USAction;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActionStateChanged, USActionComponent*, OwningComp, USAction*, Action);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -24,7 +25,7 @@ public:
 
 
 	UFUNCTION(BlueprintCallable, Category = "Actions")
-	void AddAction(AActor* Instigator, TSubcalssOf<USAction> ActionClass);
+	void AddAction(AActor* Instigator, TSubclassOf<USAction> ActionClass);
 
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	void RemoveAction(USAction* ActionToRemove);

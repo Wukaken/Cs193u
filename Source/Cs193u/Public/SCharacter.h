@@ -6,6 +6,10 @@
 #include "GameFramework/Character.h"
 #include "SCharacter.generated.h"
 
+class USActionComponent;
+class USpringArmComponent;
+class UCameraComponent;
+
 UCLASS()
 class CS193U_API ASCharacter : public ACharacter
 {
@@ -16,6 +20,15 @@ public:
 	ASCharacter();
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USActionComponent* ActionComp;
+
+	UPROPERTY(VisibleAnywhere)
+	USpringArmComponent* SpringArmComp;
+
+	UPROPERTY(VisibleAnywhere)
+	UCameraComponent* CameraComp;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 

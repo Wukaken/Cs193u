@@ -3,6 +3,10 @@
 
 #include "SActionComponent.h"
 #include "SAction.h"
+#include "../Cs193u.h"
+#include "Net/UnrealNetwork.h"
+#include "Engine/ActorChannel.h"
+
 
 DECLARE_CYCLE_STAT(TEXT("StartActionByName"), STAT_StartActionByName, STATGROUP_STANFORD);
 
@@ -129,13 +133,12 @@ void USActionComponent::ServerStopAction_Implementation(AActor* Instigator, FNam
 	StopActionByName(Instigator, ActionName);
 }
 
-bool USActionComponent::ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch,
-							 				FReplicationFlags* RepFlags)
+bool USActionComponent::ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags)
 {
-	bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RegFlags);
+	bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
 	for(USAction* Action : Actions){
 		if(Action)
-			WroteSomething |= Channel->ReplicateSubobject(Action, *Bunch, *RegFlags);
+			WroteSomething |= Channel->ReplicateSubobject(Action, *Bunch, *RepFlags);
 	}
 	return WroteSomething;
 }
