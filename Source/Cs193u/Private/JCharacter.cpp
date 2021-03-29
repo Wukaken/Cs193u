@@ -2,9 +2,11 @@
 
 
 #include "JCharacter.h"
+#include "JProjectile.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
+#include "Animation/AnimInstance.h"
 
 // Sets default values
 AJCharacter::AJCharacter()
@@ -75,8 +77,12 @@ void AJCharacter::PrimaryAttack()
 		FActorSpawnParameters ActorSpawnParams;
 		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-		GetWorld()->SpawnActor<JProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
+		GetWorld()->SpawnActor<AJProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
 	}
 
-	
+	if(ensure(PrimaryAttackAnimation)){
+		UAnimInstance* AnimIns = GetMesh()->GetAnimInstance();
+		if(ensure(AnimIns))
+			AnimIns->PlaySlotAnimationAsDynamicMontage(PrimaryAttackAnimation, "DefaultSlot");
+	}
 }

@@ -6,6 +6,10 @@
 #include "GameFramework/Actor.h"
 #include "JProjectile.generated.h"
 
+class USphereComponent;
+class UProjectileMovementComponent;
+class UPrimitiveComponent;
+
 UCLASS()
 class CS193U_API AJProjectile : public AActor
 {
@@ -17,10 +21,20 @@ public:
 
 protected:
 	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile")
+	USphereComponent* CollisionComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
+	UProjectileMovementComponent* MoveComp;
 
 public:	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
+			   UPrimitiveComponent* OtherComp, FVector NormalImpulse, 
+			   const FHitResult& Hit);
 
+	USphereComponent* GetCollisionComp() const;
+	
+	UProjectileMovementComponent* GetMovementComp() const;
 };

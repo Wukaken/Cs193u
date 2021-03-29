@@ -9,7 +9,7 @@
 class USkeletalMeshComponent;
 class USpringArmComponent;
 class UCameraComponent;
-class JProjectile;
+class AJProjectile;
 
 UCLASS()
 class CS193U_API AJCharacter : public ACharacter
@@ -21,16 +21,16 @@ public:
 	AJCharacter();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	TSubclassOf<JProjectile> ProjectileClass;
+	TSubclassOf<AJProjectile> ProjectileClass;
 
-	UPROPERTY(VisibleAnywhere, Category = "Attack")
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
 	UAnimSequence* PrimaryAttackAnimation;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere, Category = "Projectile")
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	FName HandSocketName;
 
 	UPROPERTY(VisibleAnywhere)
