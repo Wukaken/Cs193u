@@ -8,8 +8,9 @@
 
 class USphereComponent;
 class UStaticMeshComponent;
-class UParticleSystemComponent;
+class UParticleSystem;
 class UPrimitiveComponent;
+class UProjectileMovementComponent;
 
 UCLASS()
 class CS193U_API AJDashProjectile : public AActor
@@ -24,6 +25,20 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Teleport")
+	float TeleportDelay;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Teleport")
+	float DetonateDelay;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UProjectileMovementComponent* MoveComp;
+
+	// Handle to cancel timer if we already hit something
+	FTimerHandle TimerHandle_DelayedDetonate;
+
+	void Explode();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile")
 	USphereComponent* CollisionComp;
 
@@ -31,14 +46,13 @@ protected:
 	UStaticMeshComponent* MeshComp;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Fx")
-	UParticleSystemComponent* FxComp;
+	UParticleSystem* ImpactVFX;
 
-public:	
 	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
-			   UPrimitiveComponent* OtherComp, FVector NormalImpulse,
-			   const FHitResult& Hit);
-
-	void Teleport();
+	void OnActorHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
+			   		UPrimitiveComponent* OtherComp, FVector NormalImpulse,
+			   		const FHitResult& Hit);
+public:	
+	void TeleportInstigator();
 
 };
