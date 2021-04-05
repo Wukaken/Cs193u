@@ -3,12 +3,34 @@
 
 #include "SMagicProjectile.h"
 #include "Components/SphereComponent.h"
+#include "Components/PrimitiveComponent.h"
+#include "SActionComponent.h";
 
 ASMagicProjectile::ASMagicProjectile()
 {
     SphereComp->SetSphereRadius(20.0f);
-    //SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASMagicProjectile::OnActorOverlap);
+    SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASMagicProjectile::OnActorOverlap);
 
     InitialLifeSpan = 10.0f;  // Derived from AActor
     DamageAmount = 20.0f;
+}
+
+void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
+                                       AActor* OtherActor, UPrimitiveComponent* OtherComp,
+                                       int32 OtherBodyIndex, bool bFromSweep,
+                                       const FHitResult& SweepResult)
+{
+    if(OtherActor && OtherActor != GetInstigator()){
+        USActionComponent* ActionComp = Cast<USActionComponent>(OtherActor->GetComponentByClass(USActionComponent::StaticClass()));
+        if(ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag)){
+            MoveComp->Velocity = -MoveComp->Velocity;
+            SetInstigator(Cast<APawn>(OtherActor));
+            return;
+        }
+        if(USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), Other, DamageAmount, SweepResult)){
+            Explode();
+            if(ActionComp && HasAuthority())
+                ActionComp->AddAction(GetInstigator(), BurningActionClass);
+        }
+    }
 }
