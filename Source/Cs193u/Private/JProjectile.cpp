@@ -28,6 +28,8 @@ AJProjectile::AJProjectile()
 	MoveComp->MaxSpeed = 3000.f;
 	MoveComp->bRotationFollowsVelocity = true;
 	MoveComp->bShouldBounce = true;
+
+	InitialLifeSpan = 3.f;
 }
 
 USphereComponent* AJProjectile::GetCollisionComp() const
@@ -44,9 +46,9 @@ void AJProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 			   			 UPrimitiveComponent* OtherComp, FVector NormalImpulse, 
 			   			 const FHitResult& Hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("I am bullet being hit"));
 	if(ensure(OtherActor) && OtherActor != this && ensure(OtherComp) && OtherComp->IsSimulatingPhysics()){
-		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.f, GetActorLocation());
 		UE_LOG(LogTemp, Warning, TEXT("Adding Impulse"));
+		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.f, GetActorLocation());
+		Destroy();
 	}
 }

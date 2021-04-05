@@ -37,7 +37,7 @@ protected:
 	USpringArmComponent* SpringArmComp;
 
 	UPROPERTY(VisibleAnywhere)
-	UCameraComponent* CameraComp;
+	UCameraComponent* CameraComp;	
 
 	void MoveForward(float Value);
 

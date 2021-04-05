@@ -1,9 +1,0 @@
-{
-	"files.exclude": {
-		"D:/GameProj/Cs193u/.vscode": true,
-		"D:/GameProj/Cs193u/Content": true,
-		"D:/GameProj/Cs193u/DerivedDataCache": true,
-		"D:/GameProj/Cs193u/Intermediate": true,
-		"D:/GameProj/Cs193u/Saved": true
-	}
-}
