@@ -9,6 +9,9 @@
 class USActionComponent;
 class USpringArmComponent;
 class UCameraComponent;
+class USInteractionComponent;
+class USActionComponent;
+class USAttributeComponent;
 
 UCLASS()
 class CS193U_API ASCharacter : public ACharacter
@@ -20,14 +23,23 @@ public:
 	ASCharacter();
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	USActionComponent* ActionComp;
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName TimeToHitParamName;
 
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArmComp;
 
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComp;
+
+	UPROPERTY(VisibleAnywhere)
+	USInteractionComponent* InteractionComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USAttributeComponent* AttributeComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USActionComponent* ActionComp;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -36,7 +48,25 @@ protected:
 
 	void MoveRight(float Value);
 
+	void SprintStart();
+
+	void SprintStop();
+
 	void PrimaryAttack();
+
+	void BlackHoleAttack();
+
+	void Dash();
+
+	void PrimaryInteract();
+
+	UFUNCTION()
+	void OnHealthChanged(AActor* Instigator, USAttributeComponent* OwningComp,
+						 float NewHealth, float Delta);
+
+	virtual void PostInitializeComponents() override;
+
+	virtual FVector GetPawnViewLocation() const override;
 
 public:	
 	// Called every frame
@@ -45,4 +75,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(Exec)
+	void HealSelf(float Amount = 100);
 };
