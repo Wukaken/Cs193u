@@ -11,7 +11,7 @@ class UParticleSystemComponent;
 class UPrimitiveComponent;
 class UAudioComponent;
 class USoundCue;
-class UCameraShakeBase;
+class UCameraShake;
 class USphereComponent;
 class UProjectileMovementComponent;
 
@@ -26,7 +26,7 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
-	TSubclassOf<UCameraShakeBase> ImpactShake;
+	TSubclassOf<UCameraShake> ImpactShake;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
 	float ImpactShakeInnerRadius;

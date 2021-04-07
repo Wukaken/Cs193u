@@ -24,8 +24,8 @@ ASProjectileBase::ASProjectileBase()
 	EffectComp = CreateDefaultSubobject<UParticleSystemComponent>("EffectComp");
 	EffectComp->SetupAttachment(RootComponent);
 
-	AudioComp = CreeateDefaultSubobject<UAudioComponent>("AudioComp");
-	AudioCOmp->SetupAttachment(RootComponent);
+	AudioComp = CreateDefaultSubobject<UAudioComponent>("AudioComp");
+	AudioComp->SetupAttachment(RootComponent);
 
 	MoveComp = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMoveComp");
 	MoveComp->bRotationFollowsVelocity = true;

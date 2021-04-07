@@ -10,7 +10,7 @@
 // DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnRageChanged, AActor*, Instigator, USAttributeComponet*, OwningComp, float, NewHealth, float, Delta);
 
 // Alternative: Share the same signature with generic names
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnAttributeChanged, AActor*, Instigator, USAttributeComponet*, OwningComp, float, NewHealth, float, Delta);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnAttributeChanged, AActor*, Instigator, USAttributeComponent*, OwningComp, float, NewHealth, float, Delta);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class CS193U_API USAttributeComponent : public UActorComponent
@@ -64,10 +64,10 @@ public:
 	bool Kill(AActor* InstigatorActor);
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	bool bIsAlive() const;
+	bool IsAlive() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	bool bIsFullHealth() const;
+	bool IsFullHealth() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	bool GetHealth() const;

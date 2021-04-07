@@ -33,5 +33,78 @@ ASAICharacter::ASAICharacter()
 void ASAICharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	PawnSensingComp->OnSeePawn.AddDynamic(this, );
+	PawnSensingComp->OnSeePawn.AddDynamic(this, &ASAICharacter::OnPawnSeen);
+	AttributeComp->OnHealthChanged.AddDynamic(this, &ASAICharacter::OnHealthChanged);
+}
+
+void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
+{
+	if(Delta < 0.f){
+		if(InstigatorActor != this)
+			SetTargetActor(InstigatorActor);
+
+		if(ActiveHealthBar == nullptr){
+			ActiveHealthBar = CreateWidget<USWorldUserWidget>(GetWorld(), HealthBarWidgetClass);
+			if(ActiveHealthBar){
+				ActiveHealthBar->AttachedActor = this;
+				ActiveHealthBar->AddToViewport();
+			}
+		}
+
+		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+		//Died
+		if(NewHealth <= 0.f){
+			//Stop BT
+			AAIController* AIC = Cast<AAIController>(GetController());
+			if(AIC)
+				AIC->GetBrainComponent()->StopLogic("Killed");
+
+			// ragdoll
+			GetMesh()->SetAllBodiesSimulatePhysics(true);
+			GetMesh()->SetCollisionProfileName("Ragdoll");
+
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			GetCharacterMovement()->DisableMovement();
+
+			// set lifespan
+			SetLifeSpan(10.f);
+		}
+	}
+}
+
+void ASAICharacter::SetTargetActor(AActor* NewTarget)
+{
+	AAIController* AIC = Cast<AAIController>(GetController());
+	if(AIC)
+		AIC->GetBlackboardComponent()->SetValueAsObject(TargetActorKey, NewTarget);
+}
+
+void ASAICharacter::GetTargetActor() const
+{
+	AAIController* AIC = Cast<AAIController>(GetController());
+	if(AIC)
+		return Cast<AActor>(AIC->GetBlackboardComponent()->GetValueAsObject(TargetActorKey));
+	
+	return nullptr;
+}
+
+void ASAICharacter::OnPawnSeen(APawn* Pawn)
+{
+	// ignore if target already set
+	if(GetTargetActor() != Pawn){
+		SetTargetActor(Pawn);
+		MulticastPawnSeen();
+	}
+	// DrawDebugString(GetWorld(), GetActorLocation(), "Player Spotted", nullptr, FColor::White, 0.5f, true);
+}
+
+void ASAICharacter::MulticastPawnSeen_Implementation()
+{
+	USWorldUserWidget* NewWidget = CreateWidget<USWorldUserWidget>(GetWorld(), SpottedWidgetClass);
+	if(NewWidget){
+		NewWidget->AttachedActor = this;
+		// Index of 10(or anything higher than default of 0) places this on top of any other widget
+		// May end up behind the minion health bar otherwise
+		NewWidget->AddToViewport(10);
+	}
 }

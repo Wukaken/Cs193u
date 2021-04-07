@@ -4,9 +4,12 @@
 #include "SCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "DrawDebugHelpers.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "SActionComponent.h"
 #include "SAttributeComponent.h"
 #include "SInteractionComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -25,8 +28,25 @@ ASCharacter::ASCharacter()
 
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>("AttributeComp");
 
-
 	ActionComp = CreateDefaultSubobject<USActionComponent>("ActionComp");
+
+	GetCharactoerMovement()->bOrientRotationToMovement = true;
+	bUseControllerRotationYaw = false;
+
+	// Enabled on mesh to react to incoming projectiles
+	GetMesh()->SetGenerateOverlapEvents(true);
+	TimeToHitParamName = "TimeToHit";
+}
+
+void ASCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	AttributeComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
+}
+
+FVector ASCharacter::GetPawnViewLocation() const
+{
+	return CameraComp->GetComponentLocation();
 }
 
 // Called when the game starts or when spawned
@@ -57,6 +77,13 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
+	// used generic name "SecondaryAttack" for binding
+	PlayerInputComponent->BindAction("SecondaryAttack", IE_Pressed, this, &ASCharacter::BlackHoleAttack);
+	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &ASCharacter::Dash);
+	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
+
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ASCharacter::SprintStart);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ASCharacter::SprintStop);
 }
 
 void ASCharacter::MoveForward(float Value)
@@ -78,7 +105,54 @@ void ASCharacter::MoveRight(float Value)
 
 void ASCharacter::PrimaryAttack()
 {
-	UE_LOG(LogTemp, Warning, TEXT("I am doing attack"));
 	ActionComp->StartActionByName(this, "PrimaryAttack");
-	UE_LOG(LogTemp, Warning, TEXT("Finish attack"));
+}
+
+void ASCharacter::HealSelf(float Amount)
+{
+	AttributeComp->ApplyHealthChange(this, Amount);
+}
+
+void ASCharacter::SprintStart()
+{
+	ActionComnp->StartActionByName(this, "Sprint");
+}
+
+void ASCharacter::SprintStop()
+{
+	ActionComnp->StopActionByName(this, "Sprint");
+}
+
+void ASCharacter::SprintStart()
+{
+	ActionComnp->StartActionByName(this, "Blackhole");
+}
+
+void ASCharacter::Dash()
+{
+	ActionComnp->StartActionByName(this, "Dash");
+}
+
+void ASCharacter::PrimaryInteract()
+{
+	if(InteractionComp)
+		InteractionComp->PrimaryInteract();
+}
+
+void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeCommponent* OwningComp, float NewHealth, float Delta)
+{
+	// Damaged
+	if(Delta < 0.f){
+		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+		// Rage add equal to damage received(Abs to turn into positive rage number)
+		float RageData = FMath::Abs(Delta);
+		AttributeComp->ApplyRage(Instigator, RageData);
+	}
+	//Died
+	if(NewHealth <= 0.f && Delta < 0.f){
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		DisableInput(PC);
+
+		SetLifeSpan(5.f);
+	}
 }

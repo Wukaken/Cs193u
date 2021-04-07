@@ -26,10 +26,10 @@ public:
 	int32 GetCredits() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Credits")
-	void AddCredits(int32 Delta) const;
+	void AddCredits(int32 Delta);
 
 	UFUNCTION(BlueprintCallable, Category = "Credits")
-	bool RemoveCredits(int32 Delta) const;
+	bool RemoveCredits(int32 Delta);
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnCreditsChanged OnCreditsChanged;

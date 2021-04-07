@@ -8,58 +8,123 @@
 
 static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("su.DamageMultiplier"), 1.f, TEXT("Global Damage Modifier for Attribute Component."), ECVF_Cheat);
 
-class UParticleSystem;
-class UParticleSystemComponent;
-class UPrimitiveComponent;
-class UAudioComponent;
-class USoundCue;
-class UCameraShakeBase;
-class USphereComponent;
-class UProjectileMovementComponent;
-
-UCLASS(ABSTRACT) // 'ABSTRACT' marks this class as incomplete, keeping this out of certain windows like SpawnActor in Unreal Editor
-class CS193U_API ASProjectileBase : public AActor
+USAttributeComponent::USAttributeComponent()
 {
-	GENERATED_BODY()
+	HealthMax = 100;
+	Health = HealthMax;
+
+	Rage = 0;
+	RageMax = 100;
+	SetIsReplicatedByDefault(true);
+}
+
+bool USAttributeComponent::Kill(AActor* InstigatorActor)
+{
+	return ApplyHealthChange(InstigatorActor, -GetHealthMax());
+}
+
+bool USAttributeComponent::IsAlive() const
+{
+	return Health > 0.f;
+}
+
+bool USAttributeComponent::IsFullHealth() const
+{
+	return Health == HealthMax;
+}
+
+float USAttributeComponent::GetHealth() const
+{
+	return Health;
+}
+
+float USAttributeComponent::GetHealthMax() const
+{
+	return HealthMax;
+}
+
+bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
+{
+	if(!GetOwner()->CanBeDamaged() && Delta < 0.f)
+		return false;
 	
-public:	
-	// Sets default values for this actor's properties
-	ASProjectileBase();
+	if(Delta < 0.f){
+		float DamageMultiplier = CVarDamageMultiplier.GetValueOnGameThread();
+		Delta *= DamageMultiplier;
+	}
 
-protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
-	TSubclassOf<UCameraShakeBase> ImpactShake;
+	float OldHealth = Health;
+	float NewHealth = FMath::Clamp(Health + Delta, 0.f, HealthMax);
 
-	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
-	float ImpactShakeInnerRadius;
+	float ActualDelta = NewHealth - OldHealth;
+	// Is Server
+	if(GetOwner()->HasAuthority()){
+		Health = NewHealth;
+		if(ActualDelta != 0.f)
+			MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
 
-	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
-	float ImpactShakeOuterRadius;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Effects")
-	UParticleSystem* ImpactVFX;
+		// Died
+		if(ActualDelta < 0.f && Health == 0.f){
+			ASGameModeBase* GM = GetWorld()->GetAuthGameMode<ASGameModeBase>();
+			if(GM)
+				GM->OnActorKilled(GetOwner(), InstigatorActor);
+		}
+	}
 
-	UPROPERTY(EditDefaultsOnly, Category = "Effects")
-	USoundCue* ImpactSound;
+	return ActualDelta != 0;
+}
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	USphereComponent* SphereComp;
+float USAttributeComponent::GetRage() const
+{
+	return Rage;
+}
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UProjectileMovementComponent* MoveComp;
+bool USAttributeComponent::ApplyRage(AActor* InstigatorActor, float Delta)
+{
+	float OldRage = Rage;
+	Rage = FMath::Clamp(Rage + Delta, 0.f, RageMax);
+	float ActualDelta = Rage - OldRage;
+	if(ActualDelta != 0.f)
+		OnRageChanged.Broadcast(InstigatorActor, this, Rage, ActualDelta);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UParticleSystemComponent* EffectComp;
+	return ActualRage != 0;
+}
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UAudioComponent* AudioComp;
+USAttributeComponent* USAttributeComponent::GetAttributes(AActor* FromActor)
+{
+	if(FromActor)
+		return Cast<USAttributeComponent>(FromActor->GetComponentByClass(USAttributeComponent::StaticClass()));
 
-	UFUNCTION()
-	virtual void OnActorHit(UPrimitiveComponent* HitComponent, 
-							AActor* OtherActor, UPrimitiveComponent* OtherComp, 
-							FVector NormalImpulse, const FHitResult& Hit);
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Explode();
+	return nullptr;
+}
 
-	virtual void PostInitializeComponents() override;
-};
+bool USAttributeComponent::IsActorAlive(AActor* Actor)
+{
+	USAttributeComponent* AttributeComp = GetAttributes(Actor);
+	if(AttributeComp)
+		return AttributeComp->IsAlive();
+
+	return false;
+}
+
+void USAttributeComponent::MulticastHealthChanged(AActor* InstigatorActor, float NewHealth, float Delta)
+{
+	OnHealthChanged.Broadcast(Instigator, this, NewHealth, Delta);
+}
+
+void USAttributeComponent::MulticastRageChanged(AActor* InstigatorActor, float NewHealth, float Delta)
+{
+	OnRageChanged.Broadcast(Instigator, this, NewRage, Delta);
+}
+
+void USAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// all replicated property should be DOREPLIFETIME
+	DOREPLIFETIME(USAttributeComponent, Health);
+	DOREPLIFETIME(USAttributeComponent, HealthMax);
+
+	DOREPLIFETIME(USAttributeComponent, Rage);
+	DOREPLIFETIME(USAttributeComponent, RageMax);
+}

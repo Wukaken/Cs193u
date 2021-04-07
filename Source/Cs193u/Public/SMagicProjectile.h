@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SProjectileBase.h"
+#include "GameplayTagContainer.h"
 #include "SMagicProjectile.generated.h"
 
 class USActionEffect;

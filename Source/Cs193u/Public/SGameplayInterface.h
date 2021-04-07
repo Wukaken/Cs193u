@@ -13,7 +13,7 @@ class USGameplayInterface : public UInterface
 	GENERATED_BODY()
 };
 
-class CS193U_API ISGameplayInterace
+class CS193U_API ISGameplayInterface
 {
 	GENERATED_BODY()
 	//Add interface functions to this class. This is the class that will be inherited to implement this interface
@@ -22,9 +22,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void OnActorLoaded();
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent);
-	FText GetInteractText;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	FText GetInteractText(APawn* InstigatorPawn);
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent);
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Interact(APawn* InstigatorPawn);
 };

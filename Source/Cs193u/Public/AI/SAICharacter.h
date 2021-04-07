@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "SCharacter.generated.h"
+#include "SAICharacter.generated.h"
 
 class UPawnSensingComponent;
 class USAttributeComponent;

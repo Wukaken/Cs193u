@@ -7,7 +7,7 @@
 #include "SDashProjectile.generated.h"
 
 UCLASS()
-class CS193U_API ASDashProjectile : public AActor
+class CS193U_API ASDashProjectile : public ASProjectileBase
 {
 	GENERATED_BODY()
 	

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "SMagicProjectile.generated.h"
+#include "SExplosiveBarrel.generated.h"
 
 class UStaticMeshComponent;
 class URadialForceComponent;
