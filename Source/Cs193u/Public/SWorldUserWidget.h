@@ -16,7 +16,7 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	USizeBox* ParentSizeBox;
 	
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 public:
 	UPROPERTY(EditAnywhere, Category = "UI")
 	FVector WorldOffset;

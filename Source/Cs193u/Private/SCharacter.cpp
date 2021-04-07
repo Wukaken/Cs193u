@@ -30,7 +30,7 @@ ASCharacter::ASCharacter()
 
 	ActionComp = CreateDefaultSubobject<USActionComponent>("ActionComp");
 
-	GetCharactoerMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
 
 	// Enabled on mesh to react to incoming projectiles
@@ -115,22 +115,17 @@ void ASCharacter::HealSelf(float Amount)
 
 void ASCharacter::SprintStart()
 {
-	ActionComnp->StartActionByName(this, "Sprint");
+	ActionComp->StartActionByName(this, "Sprint");
 }
 
 void ASCharacter::SprintStop()
 {
-	ActionComnp->StopActionByName(this, "Sprint");
-}
-
-void ASCharacter::SprintStart()
-{
-	ActionComnp->StartActionByName(this, "Blackhole");
+	ActionComp->StopActionByName(this, "Sprint");
 }
 
 void ASCharacter::Dash()
 {
-	ActionComnp->StartActionByName(this, "Dash");
+	ActionComp->StartActionByName(this, "Dash");
 }
 
 void ASCharacter::PrimaryInteract()
@@ -139,14 +134,14 @@ void ASCharacter::PrimaryInteract()
 		InteractionComp->PrimaryInteract();
 }
 
-void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeCommponent* OwningComp, float NewHealth, float Delta)
+void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
 	// Damaged
 	if(Delta < 0.f){
 		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
 		// Rage add equal to damage received(Abs to turn into positive rage number)
 		float RageData = FMath::Abs(Delta);
-		AttributeComp->ApplyRage(Instigator, RageData);
+		AttributeComp->ApplyRage(InstigatorActor, RageData);
 	}
 	//Died
 	if(NewHealth <= 0.f && Delta < 0.f){

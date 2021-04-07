@@ -70,10 +70,10 @@ public:
 	bool IsFullHealth() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	bool GetHealth() const;
+	float GetHealth() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	bool GetHealthMax() const;
+	float GetHealthMax() const;
 
 	UPROPERTY(BlueprintAssignable, Category = "Attributes")
 	FOnAttributeChanged OnHealthChanged;
@@ -88,5 +88,5 @@ public:
 	float GetRage() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	float ApplyRage(AActor* InstigatorActor, float Delta);
+	bool ApplyRage(AActor* InstigatorActor, float Delta);
 };

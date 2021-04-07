@@ -37,7 +37,7 @@ ASGameModeBase::ASGameModeBase()
 	SlotName = "SaveGame01";
 }
 
-void ASGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+void ASGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
 	FString SelectedSaveSlot = UGameplayStatics::ParseOption(Options, "SaveGame");
@@ -52,10 +52,10 @@ void ASGameModeBase::StartPlay()
 	Super::StartPlay();
 	//Continous timer to spawn in more bots
 	// Actual amount of bots and whether its allowed to spawn determined by spawn logic later in the chain
-	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ASCharacter::SpawnBotTimerElapsed, SpawnTimerInterval, true);
+	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ASGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true);
 	
 	// Make sure we have assigned at least one power-up class
-	if(ensure(PowerClasses.Num() > 0)){
+	if(ensure(PowerupClasses.Num() > 0)){
 		// Run EQS to find potential power-up spawn locations
 		UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, PowerupSpawnQuery, this, EEnvQueryRunMode::AllMatching, nullptr);
 		if(ensure(QueryInstance))
@@ -98,20 +98,20 @@ void ASGameModeBase::SpawnBotTimerElapsed()
 		return;
 	}
 
-	LogOnScreen(this, FString::Printf("Available SpawnCredits: %f"), AvailableSpawnCredit);
+	LogOnScreen(this, FString::Printf(TEXT("Available SpawnCredits: %f"), AvailableSpawnCredit));
 	// Count alive bots before spawning
-	int32 NrOfAlivebots = 0;
-	for(TActorIterator<ASAICharacter> It(GetWorld()); It; It++){
+	int32 NrOfAliveBots = 0;
+	for(TActorIterator<ASAICharacter> It(GetWorld()); It; ++It){
 		ASAICharacter* Bot = *It;
 		USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(Bot);
 		if(ensure(AttributeComp) && AttributeComp->IsAlive())
-			NrOfAlivebots++;
+			NrOfAliveBots++;
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Found %i alive bots."), NrOfAliveBots);
 
 	const float MaxBotCount = 40.f;
-	if(NrOfAlivebots >= MaxBotCount){
+	if(NrOfAliveBots >= MaxBotCount){
 		UE_LOG(LogTemp, Log, TEXT("At Maximum bot capacity. Skipping bot spawn."));
 		return;
 	}
@@ -153,7 +153,7 @@ void ASGameModeBase::SpawnBotTimerElapsed()
 		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ASGameModeBase::OnBotSpawnQueryCompleted);
 }
 
-void ASGameModeBase::OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QuertStatus)
+void ASGameModeBase::OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
 {
 	if(QueryStatus != EEnvQueryStatus::Success){
 		UE_LOG(LogTemp, Warning, TEXT("Spawn bot EQS Query Failed!"));
@@ -168,7 +168,7 @@ void ASGameModeBase::OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper*
 			FPrimaryAssetId MonsterId = SelectedMonsterRow->MonsterId;
 
 			TArray<FName> Bundles;
-			FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &ASGameMode::OnMonsterLoaded, MonsterId, Locations[0]);
+			FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &ASGameModeBase::OnMonsterLoaded, MonsterId, Locations[0]);
 			Manager->LoadPrimaryAsset(MonsterId, Bundles, Delegate);
 		}
 	}
@@ -178,7 +178,7 @@ void ASGameModeBase::OnMonsterLoaded(FPrimaryAssetId LoadedId, FVector SpawnLoca
 {
 	// LogOnScreen(this, "Finish loading", FColor::Green);
 	UAssetManager* Manager = UAssetManager::GetIfValid();
-	if(ManagerE){
+	if(Manager){
 		USMonsterData* MonsterData = Cast<USMonsterData>(Manager->GetPrimaryAssetObject(LoadedId));
 		if(MonsterData){
 			AActor* NewBot = GetWorld()->SpawnActor<AActor>(MonsterData->MonsterClass, SpawnLocation, FRotator::ZeroRotator);
@@ -251,7 +251,7 @@ void ASGameModeBase::RespawnPlayerElapsed(AController* Controller)
 
 void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
 {
-	UE_LOG(LogTemp, Log, TEXT("OnActorKilled: Victim: %s, Killer: %s"), *GetNameSafe(VictimActor), *GameNameSafe(Killer));
+	UE_LOG(LogTemp, Log, TEXT("OnActorKilled: Victim: %s, Killer: %s"), *GetNameSafe(VictimActor), *GetNameSafe(Killer));
 	// handle player death
 	ASCharacter* Player = Cast<ASCharacter>(VictimActor);
 	if(Player){
@@ -288,7 +288,7 @@ void ASGameModeBase::WriteSaveGame()
 	CurrentSaveGame->SaveActors.Empty();
 
 	// Iterate the entire world of actors
-	for(FActorIterator It(GetWorld()); It; It++){
+	for(FActorIterator It(GetWorld()); It; ++It){
 		AActor* Actor = *It;
 		// only interested in our gameplay actors
 		if(!Actor->Implements<USGameplayInterface>())
@@ -322,7 +322,7 @@ void ASGameModeBase::LoadSaveGame()
 		UE_LOG(LogTemp, Log, TEXT("Loaded SaveGame Data"));
 
 		//Iterate the entire world of actors
-		for(FActorIterator It(GetWorld()); It; It++){
+		for(FActorIterator It(GetWorld()); It; ++It){
 			AActor* Actor = *It;
 			// only interested in our gameplay actors
 			if(!Actor->Implements<USGameplayInterface>())
@@ -335,7 +335,7 @@ void ASGameModeBase::LoadSaveGame()
 					Ar.ArIsSaveGame = true;
 					// convert binary array back into actor's variables
 					Actor->Serialize(Ar);
-					ISGameplayInterace::Execute_OnActorLoaded(Actor);
+					ISGameplayInterface::Execute_OnActorLoaded(Actor);
 					break;
 				}
 			}

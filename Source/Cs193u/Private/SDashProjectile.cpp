@@ -34,7 +34,7 @@ void ASDashProjectile::Explode_Implementation()
 	SetActorEnableCollision(false);
 
 	FTimerHandle TimerHandle_DelayedTeleport;
-	GetWorldTimerManager().SetTimer(TimerHandle_DelayedTeleport, this, &AJDashProjectile::TeleportInstigator, TeleportDelay);
+	GetWorldTimerManager().SetTimer(TimerHandle_DelayedTeleport, this, &ASDashProjectile::TeleportInstigator, TeleportDelay);
 }	
 
 void ASDashProjectile::TeleportInstigator()

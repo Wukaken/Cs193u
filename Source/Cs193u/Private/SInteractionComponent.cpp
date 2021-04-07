@@ -61,7 +61,7 @@ void USInteractionComponent::FindBestInteractable()
 
 		AActor* HitActor = Hit.GetActor();
 		if(HitActor){
-			if(HitActor->Implements<USGameplayInterface>){
+			if(HitActor->Implements<USGameplayInterface>()){
 				FocusedActor = HitActor;
 				break;
 			}
@@ -70,7 +70,7 @@ void USInteractionComponent::FindBestInteractable()
 
 	if(FocusedActor){
 		if(DefaultWidgetInstance == nullptr && ensure(DefaultWidgetClass))
-			DefaultWidgetInstance = CreateWidget<USWorldUserWidget>(GetWorld(), DefalutWidgetClass);
+			DefaultWidgetInstance = CreateWidget<USWorldUserWidget>(GetWorld(), DefaultWidgetClass);
 
 		if(DefaultWidgetInstance){
 			DefaultWidgetInstance->AttachedActor = FocusedActor;
@@ -79,8 +79,8 @@ void USInteractionComponent::FindBestInteractable()
 		}
 	}
 	else{
-		if(DefalutWidgetInstance)
-			DefalutWidgetInstance->RemoveFromParent();
+		if(DefaultWidgetInstance)
+			DefaultWidgetInstance->RemoveFromParent();
 	}
 
 	if(bDebugDraw)

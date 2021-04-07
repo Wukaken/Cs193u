@@ -18,7 +18,7 @@ ASAICharacter::ASAICharacter()
 
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>("AttributeComp");
 
-	ActionComp = CreateDefaultSubobject<USAttributeComponent>("ActioniComp");
+	ActionComp = CreateDefaultSubobject<USActionComponent>("ActioniComp");
 
 	// Ensures we recevie a controlled when spawned in the level by our gamemode
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -79,7 +79,7 @@ void ASAICharacter::SetTargetActor(AActor* NewTarget)
 		AIC->GetBlackboardComponent()->SetValueAsObject(TargetActorKey, NewTarget);
 }
 
-void ASAICharacter::GetTargetActor() const
+AActor* ASAICharacter::GetTargetActor() const
 {
 	AAIController* AIC = Cast<AAIController>(GetController());
 	if(AIC)

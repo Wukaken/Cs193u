@@ -45,7 +45,7 @@ public:
 	float KillReward;
 };
 
-UClass()
+UCLASS()
 class CS193U_API ASGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
@@ -118,7 +118,7 @@ protected:
 public:
 	virtual void OnActorKilled(AActor* VictimActor, AActor* Killer);
 
-	ASGameMode();
+	ASGameModeBase();
 
 	void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 
