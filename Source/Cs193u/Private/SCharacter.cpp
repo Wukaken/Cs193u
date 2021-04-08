@@ -123,6 +123,11 @@ void ASCharacter::SprintStop()
 	ActionComp->StopActionByName(this, "Sprint");
 }
 
+void ASCharacter::BlackHoleAttack()
+{
+	ActionComp->StopActionByName(this, "Blackhole");
+}
+
 void ASCharacter::Dash()
 {
 	ActionComp->StartActionByName(this, "Dash");
