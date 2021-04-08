@@ -1,7 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#pragma once
-
 #include "SAttributeComponent.h"
 #include "SGameModeBase.h"
 #include "Net/UnrealNetwork.h"
@@ -107,12 +105,12 @@ bool USAttributeComponent::IsActorAlive(AActor* Actor)
 	return false;
 }
 
-void USAttributeComponent::MulticastHealthChanged(AActor* InstigatorActor, float NewHealth, float Delta)
+void USAttributeComponent::MulticastHealthChanged_Implementation(AActor* InstigatorActor, float NewHealth, float Delta)
 {
 	OnHealthChanged.Broadcast(InstigatorActor, this, NewHealth, Delta);
 }
 
-void USAttributeComponent::MulticastRageChanged(AActor* InstigatorActor, float NewRage, float Delta)
+void USAttributeComponent::MulticastRageChanged_Implementation(AActor* InstigatorActor, float NewRage, float Delta)
 {
 	OnRageChanged.Broadcast(InstigatorActor, this, NewRage, Delta);
 }

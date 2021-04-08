@@ -6,11 +6,11 @@
 #include "Components/ActorComponent.h"
 #include "SAttributeComponent.generated.h"
 
-// DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChanged, AActor*, Instigator, USAttributeComponet*, OwningComp, float, NewHealth, float, Delta);
-// DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnRageChanged, AActor*, Instigator, USAttributeComponet*, OwningComp, float, NewHealth, float, Delta);
+// DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChanged, AActor*, InstigatorActor, USAttributeComponent*, OwningComp, float, NewHealth, float, Delta);
+// DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnRageChanged, AActor*, InstigatorActor, USAttributeComponent*, OwningComp, float, NewRage, float, Delta);
 
 // Alternative: Share the same signature with generic names
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnAttributeChanged, AActor*, Instigator, USAttributeComponent*, OwningComp, float, NewHealth, float, Delta);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnAttributeChanged, AActor*, InstigatorActor, USAttributeComponent*, OwningComp, float, NewValue, float, Delta);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class CS193U_API USAttributeComponent : public UActorComponent
@@ -55,10 +55,10 @@ protected:
 
 	// could mark as unreliable once we moved the 'state' out of scharacter(eg. once its cosmetic only)
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastHealthChanged(AActor* Instigator, float NewHealth, float Delta);
+	void MulticastHealthChanged(AActor* InstigatorActor, float NewHealth, float Delta);
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastRageChanged(AActor* Instigator, float NewRage, float Delta);
+	void MulticastRageChanged(AActor* InstigatorActor, float NewRage, float Delta);
 public:
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	bool Kill(AActor* InstigatorActor);

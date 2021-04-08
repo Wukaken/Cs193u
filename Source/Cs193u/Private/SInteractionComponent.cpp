@@ -92,7 +92,7 @@ void USInteractionComponent::PrimaryInteract()
 	ServerInteract(FocusedActor);
 }
 
-void USInteractionComponent::ServerInteract(AActor* InFocus)
+void USInteractionComponent::ServerInteract_Implementation(AActor* InFocus)
 {
 	if(InFocus == nullptr){
 		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, "No Focus Actor to interact");
