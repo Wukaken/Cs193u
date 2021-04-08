@@ -22,5 +22,5 @@ protected:
 
 	void NativeInitializeAnimation() override;
 
-	void NativeUpdateAnimation(float DeltaSeconds) overrdie;
+	void NativeUpdateAnimation(float DeltaSeconds) override;
 };
