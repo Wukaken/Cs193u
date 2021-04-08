@@ -1,67 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#pragma once
+#include "AI/SAIController.h"
+#include "Kismet/GameplayStatics.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
-#include "CoreMinimal.h"
-#include "GameFramework/Character.h"
-#include "SAICharacter.generated.h"
-
-class UPawnSensingComponent;
-class USAttributeComponent;
-class UUserWidget;
-class USWorldUserWidget;
-class USActionComponent;
-
-UCLASS()
-class CS193U_API ASAICharacter : public ACharacter
+void ASAIController::BeginPlay()
 {
-	GENERATED_BODY()
+	Super::BeginPlay();
+	if(ensureMsgf(BehaviorTree, TEXT("Behavior Tree is nullptr! Please assign BehaviorTree in your AI Controller.")))
+		RunBehaviorTree(BehaviorTree);
 
-public:
-	// Sets default values for this character's properties
-	ASAICharacter();
-
-protected:
-	USWorldUserWidget* ActiveHealthBar;
-
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UUserWidget> HealthBarWidgetClass;
-
-	// Widget to display when bot first sees a player
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UUserWidget> SpottedWidgetClass;
-
-	// material parameter for hitflashes
-	UPROPERTY(VisibleAnywhere, Category = "Effects")
-	FName TimeToHitParamName;
-
-	// key for AI blackboard 'TargetActor'
-	UPROPERTY(VisibleAnywhere, Category = "Effects")
-	FName TargetActorKey;
-
-	UFUNCTION(BlueprintCallable, Category = "AI")
-	void SetTargetActor(AActor* NewTarget);
-
-	UFUNCTION(BlueprintCallable, Category = "AI")
-	AActor* GetTargetActor() const;
-
-	virtual void PostInitializeComponents() override;
-
-	UFUNCTION()
-	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UPawnSensingComponent* PawnSensingComp;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	USAttributeComponent* AttributeComp;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	USActionComponent* ActionComp;
-
-	UFUNCTION()
-	void OnPawnSeen(APawn* Pawn);
-	
-	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastPawnSeen();
-};
+	// APawn* MyPawn = UGameplayStatics::GetPlayerPawn(this, 0);
+	// if(MyPawn){
+	//	GetBlackboardComponent()->SetValueAsVector("MoveToLocation", MyPawn->GetActorLocation());
+	//	GetBlackboardComponent()->SetValueAsObject("TargetActor", MyPawn);
+	//}
+}
