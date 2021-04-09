@@ -27,7 +27,7 @@ EBTNodeResult::Type USBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& O
 			return EBTNodeResult::Failed;
 
 		FVector MuzzleLocation = MyPawn->GetMesh()->GetSocketLocation("Muzzle_01");
-		FVector Direction = TargetActor->GetActorLocation() - MuzzleLocation();
+		FVector Direction = TargetActor->GetActorLocation() - MuzzleLocation;
 		FRotator MuzzleRotation = Direction.Rotation();
 
 		// ignore negative pitch to not hit the floor in front itself
